@@ -1,0 +1,144 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+header h1 i {
+    margin-right: 10px;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 5px 0 0 5px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.search-box button {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 0 5px 5px 0;
+    background-color: #333;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background-color: #444;
+}
+
+.tv-guide {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.guide-header .header-item {
+    flex: 1;
+    text-align: center;
+}
+
+.channels-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.channel:last-child {
+    border-bottom: none;
+}
+
+.channel .name {
+    flex: 1;
+}
+
+.channel .playing-now {
+    flex: 1;
+    text-align: center;
+}
+
+.channel .actions {
+    flex: 1;
+    text-align: center;
+}
+
+.channel .actions button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.channel .actions button:hover {
+    background-color: #444;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffffff;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.pagination button:hover {
+    background-color: #444;
+}
+
+.pagination button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}

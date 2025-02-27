@@ -1,0 +1,6 @@
+requests
+flask
+flask-cors
+m3u8
+beautifulsoup4
+aiohttp
