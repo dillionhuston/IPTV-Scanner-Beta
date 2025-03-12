@@ -15,9 +15,9 @@ import logging
 M3U_URL = "https://iptv-org.github.io/iptv/index.m3u"
 BATCH_SIZE = 20 # number of channels to process in each batch
 FILES = {
-        "streams": "IPTV_STREAMS_FILE.json",
-        "dead": "DEAD_STREAMS_FILE.json",
-        "invalid": "INVALID_LINKS_FILE.json"
+        "streams": "iptv_streams.json", # valid streams
+        "dead": "dead_steams.json", # dead streams
+        "invalid": "invalid_links.json" # invalid links
 }
 DIRECTORIES = ['webroot', 'webroot/js']
 
@@ -179,4 +179,4 @@ if __name__ == '__main__':
     sweep_thread.start()
 
     # Start the Flask web server
-    app.run(host='127.0.0.1', port=40006)
+    app.run(host='127.0.0.1', port=40006) # i actully like this change
