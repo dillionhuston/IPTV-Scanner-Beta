@@ -15,9 +15,9 @@ import logging
 M3U_URL = "https://iptv-org.github.io/iptv/index.m3u"
 BATCH_SIZE = 20 # number of channels to process in each batch
 FILES = {
-        "streams": "iptv_streams.json", # valid streams
-        "dead": "dead_steams.json", # dead streams
-        "invalid": "invalid_links.json" # invalid links
+        "streams": "IPTV_STREAMS_FILE.json",
+        "dead": "DEAD_STREAMS_FILE.json",
+        "invalid": "INVALID_LINKS_FILE.json"
 }
 DIRECTORIES = ['webroot', 'webroot/js']
 
@@ -110,8 +110,6 @@ async def initial_scan():
 
 
 
-
-      
 def sweep_channels():
     try:
         logging.info("Starting channel sweep...")
@@ -179,4 +177,4 @@ if __name__ == '__main__':
     sweep_thread.start()
 
     # Start the Flask web server
-    app.run(host='127.0.0.1', port=40006) # i actully like this change
+    app.run(host='127.0.0.1', port=40006)
