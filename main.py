@@ -93,6 +93,13 @@ async def process_channels(channels, invalid_links, delay=10):
                     valid_channels.append(channel)
                 else:
                     dead_channels.append(channel)
+            # write to file write away so file is read for user once finsihed initial scan
+            with open(FILES['streams'], 'w')as f:
+                json.dump(valid_channels, f, indent=4) 
+
+            with open(FILES['dead'], 'w') as f:
+                json.dump(dead_channels, f, indent=4)
+
             await asyncio.sleep(delay) # play about with this to control proceesing speed
     return valid_channels, dead_channels
 
