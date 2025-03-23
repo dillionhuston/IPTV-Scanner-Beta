@@ -8,6 +8,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from features.channel_checker import check_channels
 from features.stream_validator import validate_stream
+
 import logging
 
 
@@ -23,7 +24,6 @@ DIRECTORIES = ['webroot', 'webroot/js']
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 # Ensure required directories and files exist
 for directory in DIRECTORIES:
@@ -42,7 +42,7 @@ CORS(app)
 #checks if link exists
 async def check_link_exists(session, url, retries=3, delay=5):
     retryable_statuses = {500, 502, 503, 504, 429}  # temp  failures
-    headers = {"User-Agent": "Mozilla/5.0"}  # avoid bot detection
+    headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "}  # hopefully gives a decent user agent
 
     for attempt in range(1, retries + 1):
         try:
@@ -120,6 +120,7 @@ async def initial_scan():
         for file, data in zip(FILES.values(), [valid_channels, dead_channels, invalid_links]):
             with open(file, 'w') as f:
                 json.dump(data, f, indent=4)
+               
 
         logging.info(f"Initial scan complete: {len(valid_channels)} valid, {len(dead_channels)} dead.")
     except Exception as e:
@@ -146,6 +147,8 @@ async def start_periodic_sweep():
     while True:
         await sweep_channels_async() # use asyncio.sleep() instead of time.sleep()
         await asyncio.sleep(3 * 60 * 60)  # Sleep for 3 hours
+        from features.sortgenre import GetGroupTitle
+        await GetGroupTitle()
 
 
 
