@@ -18,12 +18,18 @@ BATCH_SIZE = 10 # number of channels to process in each batch.
 FILES = {
         "streams": 'jsons/IPTV_STREAMS_FILE.json',
         "dead": 'jsons/DEAD_STREAMS_FILE.json',
-        "invalid": 'jsons/INVALID_LINKS_FILE.json'
+        "invalid": 'jsons/INVALID_LINKS_FILE.json',
 }
 DIRECTORIES = ['webroot', 'webroot/js']
 
-# Configure logging
+# Configure logging and genre logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+genre_logger = logging.getLogger("genre_logger")
+genre_logger.setLevel(logging.INFO)
+handler = logging.FileHandler("jsons/GENRE_LOGS.json")
+handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+genre_logger.addHandler(handler)
+
 
 # Ensure required directories and files exist
 for directory in DIRECTORIES:
@@ -63,19 +69,20 @@ async def check_link_exists(session, url, retries=3, delay=5):
        
 # Asynchronously validate a single channel.
 async def validate_channel(session, channel):
-    
     try:
-        logging.info(f"Validating channel: {channel['url']}")
+        logging.info(f"Validating channel: {channel['url']} (Genre: {channel.get('group_title', 'Unknown')})")
         if await validate_stream(session, channel['url']): 
             channel['status'] = 'online'
+            genre_logger.info(json.dumps({"name": channel['name'], "genre": channel.get('group_title', 'Unknown'), "status": "online"}))
             return channel, True
         else:
             channel['status'] = 'offline'
+            genre_logger.info(json.dumps({"name": channel['name'], "genre": channel.get('group_title', 'Unknown'), "status": "offline"}))
             return channel, False
     except Exception as e:
         logging.error(f"Error validating channel {channel['url']}: {e}")
-        channel['status'] = 'error'
         return channel, False
+
 
 
 #Process channels in batches asynchronously
@@ -138,7 +145,6 @@ async def sweep_channels_async():
     for file, data in zip([FILES['streams'], FILES['dead']], [valid_channels, dead_channels]):
         with open(file, 'w') as f:
             json.dump(data, f, indent=4)
-
     logging.info(f"Channel sweep complete: {len(valid_channels)} valid, {len(dead_channels)} dead.")      
 
 
@@ -147,8 +153,8 @@ async def start_periodic_sweep():
     while True:
         await sweep_channels_async() # use asyncio.sleep() instead of time.sleep()
         await asyncio.sleep(3 * 60 * 60)  # Sleep for 3 hours
-        from features.sortgenre import GetGroupTitle
-        await GetGroupTitle()
+        
+        
 
 
 
@@ -170,6 +176,9 @@ def get_channels():
             sort_by = request.args.get('sort_by', 'name')
             group_by = request.args.get('group_by', 'group_title')
             channels.sort(key=lambda x: x.get(sort_by, ''))
+            from features.sortgenre import GetGroupTitle
+            GetGroupTitle()
+        
 
         # group channels
         grouped_channels = {}
@@ -180,6 +189,7 @@ def get_channels():
         flattened_channels = [ch for group in grouped_channels.values() for ch in group]
         paginated_channels = flattened_channels[(page - 1) * 15: page * 15]
         return jsonify(paginated_channels)
+    
     
     except Exception as e:
         logging.error(f"Error loading channels: {e}")
@@ -197,8 +207,19 @@ def search_channels():
     except Exception as e:
         logging.error(f"Error searching channels: {e}")
         return jsonify([])
+    
 
 
+# display genre logs in json format. only temp
+@app.route('/genre_logs')
+def get_genre_logs():
+    try:
+        with open(FILES['genres'], "r") as f:
+            logs = f.readlines()
+        return jsonify([json.loads(log.strip()) for log in logs])
+    except Exception as e:
+        logging.error(f"Error fetching genre logs: {e}")
+        return jsonify([])
 
 def run_flask():
     app.run(host='127.0.0.1', port=40006, use_reloader=False)
