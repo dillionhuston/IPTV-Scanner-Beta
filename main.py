@@ -30,7 +30,6 @@ handler = logging.FileHandler("jsons/GENRE_LOGS.json")
 handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 genre_logger.addHandler(handler)
 
-
 # Ensure required directories and files exist
 for directory in DIRECTORIES:
     os.makedirs(directory, exist_ok=True)
@@ -39,11 +38,9 @@ for directory in DIRECTORIES:
             with open(file, 'w') as f:
                 json.dump([], f)
 
-
 # Initialize Flask app
 app = Flask(__name__, template_folder='webroot', static_folder='webroot')
 CORS(app) 
-
 
 #checks if link exists
 async def check_link_exists(session, url, retries=3, delay=5):
@@ -100,7 +97,7 @@ async def process_channels(channels, invalid_links, delay=10):
                     valid_channels.append(channel)
                 else:
                     dead_channels.append(channel)
-            # write to file write away so file is read for user once finsihed initial scan
+            # write to file right away, so file is read for user once finished  initial scan
             with open(FILES['streams'], 'w')as f:
                 json.dump(valid_channels, f, indent=4) 
 
@@ -109,7 +106,6 @@ async def process_channels(channels, invalid_links, delay=10):
 
             await asyncio.sleep(delay) # play about with this to control proceesing speed
     return valid_channels, dead_channels
-
 
 
 #Perform an initial scan to check if links exist and validate them.

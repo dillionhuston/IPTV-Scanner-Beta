@@ -19,6 +19,12 @@ implement a function to show this on webpage
 
 create sort by buttons for genre
 """
+genere = {
+    "genre1": [],
+    "genre2": [],
+    "genre3": [],
+    # add more genres
+}
 
 def GetGroupTitle(json_path) -> str:
     with open(json_path, 'r') as file:
