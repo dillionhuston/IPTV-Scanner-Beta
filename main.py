@@ -1,75 +1,89 @@
 import os
 import json
 import time
-import threading
+from threading import Thread
 import asyncio
 import aiohttp
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from features.channel_checker import check_channels
 from features.stream_validator import validate_stream
+
 import logging
 
 
 # constants
 M3U_URL = "https://iptv-org.github.io/iptv/index.m3u"
-BATCH_SIZE = 20 # number of channels to process in each batch
+BATCH_SIZE = 10 # number of channels to process in each batch. 
 FILES = {
-        "streams": "IPTV_STREAMS_FILE.json",
-        "dead": "DEAD_STREAMS_FILE.json",
-        "invalid": "INVALID_LINKS_FILE.json"
+        "streams": 'jsons/IPTV_STREAMS_FILE.json',
+        "dead": 'jsons/DEAD_STREAMS_FILE.json',
+        "invalid": 'jsons/INVALID_LINKS_FILE.json',
 }
 DIRECTORIES = ['webroot', 'webroot/js']
 
-# Configure logging
+# Configure logging and genre logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+genre_logger = logging.getLogger("genre_logger")
+genre_logger.setLevel(logging.INFO)
+handler = logging.FileHandler("jsons/GENRE_LOGS.json")
+handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+genre_logger.addHandler(handler)
 
 # Ensure required directories and files exist
 for directory in DIRECTORIES:
     os.makedirs(directory, exist_ok=True)
-for file in FILES.values():
-    if not os.path.exists(file):
-        with open(file, 'w') as f:
-            json.dump([], f)
+    for file in FILES.values():
+        if not os.path.exists(file):
+            with open(file, 'w') as f:
+                json.dump([], f)
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='webroot', static_folder='webroot')
 CORS(app) 
 
 #checks if link exists
-async def check_link_exists(session, url):
-    try:
-        async with session.get(url, timeout=15) as response:
-            if response.status in [200, 302]:
-                return True
-            else:
-                logging.warning(f"Invalid link: {url} (status: {response.status})")
-                return False
-    except Exception as e:
-        logging.error(f"Error checking link {url}: {e}")
-        return False
+async def check_link_exists(session, url, retries=3, delay=5):
+    retryable_statuses = {500, 502, 503, 504, 429}  # temp  failures
+    headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "}  # hopefully gives a decent user agent
 
+    for attempt in range(1, retries + 1):
+        try:
+            async with session.get(url, timeout=15, headers=headers)as response:
+                if response.status in {200, 302}:
+                    return True
+                if response.status in retryable_statuses:
+                    logging.warning(f"retryable error {response.status} for {url}, retryinh=g")
+                else:
+                    logging.warning(f"invalid link {url} /9status: {response.status})")
+                    return False
+        except Exception as e:
+            logging.error(f"attempt {attempt} failed for {url}: {e}")
+            await asyncio.sleep(delay) # slow down and avoid hitting servers to quickly
 
+    return False # if 3 retries fail 
+
+       
 # Asynchronously validate a single channel.
 async def validate_channel(session, channel):
-    
     try:
-        logging.info(f"Validating channel: {channel['url']}")
+        logging.info(f"Validating channel: {channel['url']} (Genre: {channel.get('group_title', 'Unknown')})")
         if await validate_stream(session, channel['url']): 
             channel['status'] = 'online'
+            genre_logger.info(json.dumps({"name": channel['name'], "genre": channel.get('group_title', 'Unknown'), "status": "online"}))
             return channel, True
         else:
             channel['status'] = 'offline'
+            genre_logger.info(json.dumps({"name": channel['name'], "genre": channel.get('group_title', 'Unknown'), "status": "offline"}))
             return channel, False
     except Exception as e:
         logging.error(f"Error validating channel {channel['url']}: {e}")
-        channel['status'] = 'error'
         return channel, False
 
 
+
 #Process channels in batches asynchronously
-async def process_channels(channels, invalid_links):
+async def process_channels(channels, invalid_links, delay=10):
    
     valid_channels = []
     dead_channels = []
@@ -83,9 +97,15 @@ async def process_channels(channels, invalid_links):
                     valid_channels.append(channel)
                 else:
                     dead_channels.append(channel)
+            # write to file right away, so file is read for user once finished  initial scan
+            with open(FILES['streams'], 'w')as f:
+                json.dump(valid_channels, f, indent=4) 
+
+            with open(FILES['dead'], 'w') as f:
+                json.dump(dead_channels, f, indent=4)
+
+            await asyncio.sleep(delay) # play about with this to control proceesing speed
     return valid_channels, dead_channels
-
-
 
 
 #Perform an initial scan to check if links exist and validate them.
@@ -93,16 +113,17 @@ async def initial_scan():
     try:
         logging.info("Starting initial scan...")
         channels = check_channels(M3U_URL)
+
         async with aiohttp.ClientSession() as session:
             tasks = [check_link_exists(session, ch['url']) for ch in channels]
             exists_results = await asyncio.gather(*tasks)
-        invalid_links = [ch['url'] for ch, exists in zip(channels, exists_results) if not exists]
-        valid_channels, dead_channels = await process_channels([ch for ch in channels if ch['url'] in exists_results], invalid_links)
-        
+            invalid_links = [ch['url'] for ch, exists in zip(channels, exists_results) if not exists]
+            valid_channels, dead_channels = await process_channels([ch for ch, exists in zip(channels, exists_results) if exists], invalid_links)
+
         for file, data in zip(FILES.values(), [valid_channels, dead_channels, invalid_links]):
             with open(file, 'w') as f:
                 json.dump(data, f, indent=4)
-
+               
 
         logging.info(f"Initial scan complete: {len(valid_channels)} valid, {len(dead_channels)} dead.")
     except Exception as e:
@@ -110,34 +131,36 @@ async def initial_scan():
 
 
 
-def sweep_channels():
-    try:
-        logging.info("Starting channel sweep...")
-        channels = check_channels(M3U_URL)
-        with open(FILES['invalid'], 'r') as f:
-            invalid_links = json.load(f)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        valid_channels, dead_channels = loop.run_until_complete(process_channels(channels, invalid_links))
-        for file, data in zip([FILES['streams'], FILES['dead']], [valid_channels, dead_channels]):
-            with open(file, 'w') as f:
-                json.dump(data, f, indent=4)
-        logging.info(f"Channel sweep complete: {len(valid_channels)} valid, {len(dead_channels)} dead.")
-    except Exception as e:
-        logging.error(f"Error during channel sweep: {e}")
-                      
+async def sweep_channels_async():
+    logging.info("Starting channel sweep...")
+    channels = check_channels(M3U_URL)
+    with open(FILES['invalid'], 'r') as f:
+        invalid_links = json.load(f)
+        valid_channels, dead_channels = await process_channels(channels, invalid_links)
+    
+    for file, data in zip([FILES['streams'], FILES['dead']], [valid_channels, dead_channels]):
+        with open(file, 'w') as f:
+            json.dump(data, f, indent=4)
+    logging.info(f"Channel sweep complete: {len(valid_channels)} valid, {len(dead_channels)} dead.")      
 
 
-def start_periodic_sweep():
+async def start_periodic_sweep():
     """Start periodic channel sweeps every 3 hours."""
     while True:
-        sweep_channels()
-        time.sleep(3 * 60 * 60)  # Sleep for 3 hours
+        await sweep_channels_async() # use asyncio.sleep() instead of time.sleep()
+        await asyncio.sleep(3 * 60 * 60)  # Sleep for 3 hours
+        
+        
+
+
+
+#flask routes
 
 @app.route('/')
 def index():
     """Render the main TV guide page."""
     return render_template('index.html')
+
 
 @app.route('/channels')
 def get_channels():
@@ -145,16 +168,29 @@ def get_channels():
     try:
         with open(FILES['streams'], 'r') as f:
             channels = json.load(f)
-            page, sort_by, group_by = int(request.args.get('page', 1)), request.args.get('sort_by', 'name'), request.args.get('group_by', 'group_title')
-            channels.sort(key=lambda x: x[sort_by])
-            grouped_channels = {ch[group_by]: [] for ch in channels}
-            for ch in channels:
-                grouped_channels[ch[group_by]].append(ch)
-                paginated_channels = [ch for group in grouped_channels.values() for ch in group][(page - 1) * 15: page * 15]
-                return jsonify(paginated_channels)
+            page = int(request.args.get('page', 1))
+            sort_by = request.args.get('sort_by', 'name')
+            group_by = request.args.get('group_by', 'group_title')
+            channels.sort(key=lambda x: x.get(sort_by, ''))
+            from features.sortgenre import GetGroupTitle
+            GetGroupTitle()
+        
+
+        # group channels
+        grouped_channels = {}
+        for ch in channels:
+            grouped_channels.setdefault(ch.get(group_by, 'Unknown'), []).append(ch)
+
+        # flattening and paginating
+        flattened_channels = [ch for group in grouped_channels.values() for ch in group]
+        paginated_channels = flattened_channels[(page - 1) * 15: page * 15]
+        return jsonify(paginated_channels)
+    
+    
     except Exception as e:
         logging.error(f"Error loading channels: {e}")
         return jsonify([])
+    
 
 @app.route('/search')
 def search_channels():
@@ -167,14 +203,42 @@ def search_channels():
     except Exception as e:
         logging.error(f"Error searching channels: {e}")
         return jsonify([])
+    
 
+
+# display genre logs in json format. only temp
+@app.route('/genre_logs')
+def get_genre_logs():
+    try:
+        with open(FILES['genres'], "r") as f:
+            logs = f.readlines()
+        return jsonify([json.loads(log.strip()) for log in logs])
+    except Exception as e:
+        logging.error(f"Error fetching genre logs: {e}")
+        return jsonify([])
+
+def run_flask():
+    app.run(host='127.0.0.1', port=40006, use_reloader=False)
+
+"""make sure flask server runs first and then do initial scan """
 if __name__ == '__main__':
-    # Perform an initial scan at startup
-    asyncio.run(initial_scan())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-    # Start the periodic sweep in a separate thread
-    sweep_thread = threading.Thread(target=start_periodic_sweep, daemon=True)
-    sweep_thread.start()
+    # start flask in seperate thread so it doesnt block the loop
+    flask_thread = Thread(target=run_flask)
+    flask_thread.start()
 
-    # Start the Flask web server
-    app.run(host='127.0.0.1', port=40006)
+    # start async tasks
+    loop.create_task(initial_scan())
+    loop.create_task(start_periodic_sweep())
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        logging.info('shutting down :3')
+    finally:
+        loop.close()
+
+   
+ 
