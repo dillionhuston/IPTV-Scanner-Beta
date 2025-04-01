@@ -172,8 +172,7 @@ def get_channels():
             sort_by = request.args.get('sort_by', 'name')
             group_by = request.args.get('group_by', 'group_title')
             channels.sort(key=lambda x: x.get(sort_by, ''))
-            from features.sortgenre import GetGroupTitle
-            GetGroupTitle()
+            
         
 
         # group channels
