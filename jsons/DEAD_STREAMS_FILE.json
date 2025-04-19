@@ -1,0 +1,173 @@
+[
+    {
+        "name": "Unknown",
+        "url": "http://89.254.128.5:22280/1_2/mono.m3u8",
+        "tvg_id": "1Plus2.lv",
+        "tvg_logo": "https://static.wikia.nocookie.net/logopedia/images/d/d9/1%2B2.svg/revision/latest/scale-to-width-down/512",
+        "group_title": "Undefined",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://123tv-mx1.flex-cdn.net/index.m3u8",
+        "tvg_id": "123tv.de",
+        "tvg_logo": "https://i.imgur.com/slSUDNX.png",
+        "group_title": "Shop",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://d3472rjicrodic.cloudfront.net/nlpo/clr-nlpo/709d5260/index.m3u8",
+        "tvg_id": "1AlmereTV.nl",
+        "tvg_logo": "https://i.imgur.com/XfkbTrU.png",
+        "group_title": "General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://cdn.freevisiontv.co.za/sttv/smil:1kzn.stream.smil/playlist.m3u8",
+        "tvg_id": "1KZNTV.za",
+        "tvg_logo": "https://admango.cdn.mangomolo.com/analytics/uploads/188/6544bebaae.jpg",
+        "group_title": "Entertainment;Family;General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "http://1music.hu/1music.m3u8",
+        "tvg_id": "MusicChannel.hu",
+        "tvg_logo": "https://i.imgur.com/pzU6FrQ.png",
+        "group_title": "Music",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8",
+        "tvg_id": "1TV.ge",
+        "tvg_logo": "https://i.imgur.com/FSkYLPK.png",
+        "group_title": "General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://ms2.mx-cd.net/dtv-10/198-989148/1Twente_TV.smil/playlist.m3u8",
+        "tvg_id": "1TwenteTV.nl",
+        "tvg_logo": "https://i.imgur.com/ftiuNK3.png",
+        "group_title": "General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://cdn.002radio.com:3909/live/radio002live.m3u8",
+        "tvg_id": "002RadioTV.do",
+        "tvg_logo": "https://i.imgur.com/7oNe8xj.png",
+        "group_title": "General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://2gblive.akamaized.net/hls/live/2033805/2GB/index.m3u8",
+        "tvg_id": "2GB.au",
+        "tvg_logo": "https://i.ibb.co/jwM8DFG/2GB-1.png",
+        "group_title": "News",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://tv.cdn.xsg.ge/gpb-2tv/index.m3u8",
+        "tvg_id": "2TV.ge",
+        "tvg_logo": "https://i.imgur.com/FJBL6zI.png",
+        "group_title": "General",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://directes-tv-int.3catdirectes.cat/live-origin/canal324-hls/master.m3u8",
+        "tvg_id": "324.es",
+        "tvg_logo": "https://static.wikia.nocookie.net/logopedia/images/2/21/324_%28CCMA%29_logo.svg/revision/latest/scale-to-width-down/512",
+        "group_title": "News",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abncanada/3ABN/master.m3u8",
+        "tvg_id": "",
+        "tvg_logo": "",
+        "group_title": "Undefined",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/d2d_live/smil:d2d_live.smil/playlist.m3u8",
+        "tvg_id": "DareToDreamNetwork.us",
+        "tvg_logo": "https://i.imgur.com/JwCLwQ2.png",
+        "group_title": "Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/3abn_live/smil:3abn_live.smil/playlist.m3u8",
+        "tvg_id": "3ABNEnglish.us",
+        "tvg_logo": "https://i.imgur.com/bgJQIyW.png",
+        "group_title": "Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/Fre_live/smil:Fre_live.smil/playlist.m3u8",
+        "tvg_id": "3ABNFrench.us",
+        "tvg_logo": "https://i.imgur.com/B5gsM7m.png",
+        "group_title": "Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/Int_live/smil:Int_live.smil/playlist.m3u8",
+        "tvg_id": "3ABNInternational.us",
+        "tvg_logo": "https://i.imgur.com/8YMLPA3.png",
+        "group_title": "Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/Kids_live/smil:Kids_live.smil/playlist.m3u8",
+        "tvg_id": "3ABNKids.us",
+        "tvg_logo": "https://i.imgur.com/SUPQAok.png",
+        "group_title": "Animation;Kids;Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn2/Lat_live/smil:Lat_live.smil/playlist.m3u8",
+        "tvg_id": "3ABNLatino.us",
+        "tvg_logo": "https://i.imgur.com/If6rCuD.png",
+        "group_title": "Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    },
+    {
+        "name": "Unknown",
+        "url": "https://3abn.bozztv.com/3abn1/PraiseHim/smil:PraiseHim.smil/playlist.m3u8",
+        "tvg_id": "3ABNPraiseHimMusicNetwork.us",
+        "tvg_logo": "https://i.imgur.com/iBcqT8L.png",
+        "group_title": "Music;Religious",
+        "playing_now": "Not available",
+        "status": "offline"
+    }
+]

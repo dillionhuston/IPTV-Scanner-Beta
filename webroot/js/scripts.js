@@ -1,5 +1,29 @@
 let currentPage = 1;
 
+// Reference to the loading bar
+const loadingBar = document.getElementById('loadingBar');
+const channelsList = document.getElementById('channels');
+
+// Show loading bar
+function showLoading() {
+    loadingBar.classList.add('active');
+    channelsList.style.opacity = '0.5';
+    channelsList.setAttribute('aria-busy', 'true');
+}
+
+// Hide loading bar
+function hideLoading() {
+    loadingBar.classList.remove('active');
+    channelsList.style.opacity = '1';
+    channelsList.setAttribute('aria-busy', 'false');
+}
+
+// Display error message
+function showError(message) {
+    channelsList.innerHTML = `<div class="error-message">${message}</div>`;
+    hideLoading();
+}
+
 document.getElementById('search').addEventListener('input', (e) => {
     const query = e.target.value;
     if (query.length > 2) {
@@ -10,18 +34,42 @@ document.getElementById('search').addEventListener('input', (e) => {
 });
 
 function loadChannels(page) {
+    showLoading();
     fetch(`/channels?page=${page}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch channels');
+            }
+            return response.json();
+        })
         .then(data => {
             renderChannels(data);
             renderPagination(page);
+            hideLoading();
+        })
+        .catch(error => {
+            showError('Error loading channels. Please try again.');
+            console.error(error);
         });
 }
 
 function searchChannels(query) {
+    showLoading();
     fetch(`/search?query=${query}`)
-        .then(response => response.json())
-        .then(data => renderChannels(data));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to search channels');
+            }
+            return response.json();
+        })
+        .then(data => {
+            renderChannels(data);
+            hideLoading();
+        })
+        .catch(error => {
+            showError('Error searching channels. Please try again.');
+            console.error(error);
+        });
 }
 
 function renderChannels(channels) {
@@ -46,6 +94,7 @@ function renderPagination(page) {
 }
 
 function changePage(page) {
+    if (page < 1) return;
     currentPage = page;
     loadChannels(page);
 }
@@ -63,3 +112,6 @@ function openStream(url) {
 function openInBrowser(url) {
     window.open(url, '_blank');
 }
+
+// Initialize
+loadChannels(currentPage);

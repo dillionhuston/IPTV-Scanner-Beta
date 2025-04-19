@@ -5,30 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banabyte IPTV Streams</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="header">
             <h1><i class="fas fa-tv"></i> Banabyte IPTV Streams</h1>
             <div class="search-box">
-                <input type="text" id="search" placeholder="Search channels...">
-                <button onclick="searchChannels()"><i class="fas fa-search"></i></button>
+                <input type="text" id="search" placeholder="Search channels..." aria-label="Search channels">
+                <button onclick="searchChannels()" aria-label="Search"><i class="fas fa-search"></i></button>
             </div>
         </header>
-        <div class="tv-guide">
+        <main class="tv-guide">
             <div class="guide-header">
                 <div class="header-item">Channel</div>
                 <div class="header-item">What's On Now</div>
                 <div class="header-item">Actions</div>
             </div>
+            <div class="loading-bar" id="loadingBar">
+                <div class="loading-progress"></div>
+            </div>
             <div id="channels" class="channels-list"></div>
-        </div>
-        <div class="pagination">
-            <button onclick="changePage(currentPage - 1)" id="prevPage"><i class="fas fa-chevron-left"></i> Previous</button>
-            <span id="pageInfo">Page 1</span>
-            <button onclick="changePage(currentPage + 1)" id="nextPage">Next <i class="fas fa-chevron-right"></i></button>
-        </div>
+        </main>
+        <footer class="pagination">
+            <button onclick="changePage(currentPage - 1)" id="prevPage" aria-label="Previous page">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span id="pageInfo" aria-live="polite">Page 1</span>
+            <button onclick="changePage(currentPage + 1)" id="nextPage" aria-label="Next page">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </footer>
     </div>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
